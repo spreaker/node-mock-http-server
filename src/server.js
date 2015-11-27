@@ -106,7 +106,7 @@ function Server(host, port, key, cert)
             req.query    = reqParts.query;
 
             // Check if we can handle the request
-            if (handled || (handler.when != "*" && req.method != handler.when.toUpperCase()) || reqParts.pathname != handler.on || (handler.filter && handler.filter(req) !== true)) {
+            if (handled || (handler.method != "*" && req.method != handler.method.toUpperCase()) || reqParts.pathname != handler.path || (handler.filter && handler.filter(req) !== true)) {
                 return;
             }
 
@@ -169,14 +169,14 @@ function Server(host, port, key, cert)
     }
 
 
-    this.will = function(handler)
+    this.on = function(handler)
     {
         // Add default reply
         handler.reply         = _({}).extend({ "status": 200, "body": "" }, handler.reply);
         handler.reply.headers = _({}).extend({ "content-type": "application/json" }, handler.reply.headers);
 
         // Add default method
-        handler = _({}).extend({ "when": "GET" }, handler);
+        handler = _({}).extend({ "method": "GET" }, handler);
 
         handlers.push(handler);
         return this;
@@ -247,7 +247,7 @@ function Server(host, port, key, cert)
 
 function ServerVoid() {
 
-    this.will  = function() {};
+    this.on  = function() {};
     this.start = function(callback) { callback(); };
     this.stop  = function(callback) { callback(); };
 }
@@ -262,10 +262,10 @@ function ServerMock(httpConfig, httpsConfig)
     var httpsServerMock = httpsConfig ? new Server(httpsConfig.host, httpsConfig.port, httpsConfig.key, httpsConfig.cert) : new ServerVoid();
 
 
-    this.will = function(handler)
+    this.on = function(handler)
     {
-        httpServerMock.will(handler);
-        httpsServerMock.will(handler);
+        httpServerMock.on(handler);
+        httpsServerMock.on(handler);
 
         return this;
     };
