@@ -15,5 +15,10 @@
   "bugs": {
     "url": "https://github.com/spreaker/node-mock-http-server/issues"
   },
-  "homepage": "https://github.com/spreaker/node-mock-http-server"
+  "homepage": "https://github.com/spreaker/node-mock-http-server",
+  "dependencies": {
+    "connect": "^3.4.0",
+    "multiparty": "^4.1.2",
+    "underscore": "^1.8.3"
+  }
 }
