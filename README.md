@@ -34,8 +34,8 @@ describe('Test', function() {
             }
         });
 
-        // Now the server mock will handle a GET /resource
-        // and will reply with 200 { hello: "world" }
+        // Now the server mock will handle a GET http://localhost:9000/resource
+        // and will reply with 200 `{"hello": "world"}`
         done();
     });
 });
