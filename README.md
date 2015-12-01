@@ -144,3 +144,8 @@ server.on({
     }
 });
 ```
+
+
+### License
+
+MIT
