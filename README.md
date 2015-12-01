@@ -46,7 +46,7 @@ describe('Test', function() {
 
 #### Constructor
 
-`new ServerMock(httpConfig, httpsConfig)` instance a new mockable HTTP/HTTPS Server. If `httpConfig` is not `undefined`, creates an HTTP server listening, while if `httpsConfig` is not `undefined`, creates an HTTPS server. They can be both defined.
+`new ServerMock(httpConfig, httpsConfig)` instance a new mockable HTTP/HTTPS Server. If `httpConfig` is defined, creates an HTTP server, while if `httpsConfig` is defined, creates an HTTPS server. They can be both defined.
 
 Example:
 ```js
@@ -89,6 +89,17 @@ afterEach(function(done) {
 
 Defines a request handler. Multiple calls to `on()` can be chained together.
 
+| Option          | Default                                  | Description |
+| --------------- | ---------------------------------------- | ----------- |
+| `method`        | `GET`                                    | HTTP method to match. Can be `*` to match any method. |
+| `path`          |                                          | HTTP request path to match. |
+| `filter`        |                                          | The value is a filter function `fn(request)`: if it returns `true` the handler gets executed. |
+| `reply.status`  | `200`                                    | HTTP response status code. Can be a `number` or a synchronous function `fn(request)` that returns the response status code. |
+| `reply.headers` | `{ "content-type": "application/json" }` | HTTP response headers. `content-length` is managed by the server implementation. |
+| `reply.body`    | empty string                             | HTTP response body. Can be a `string`, a synchronous function `fn(request)` that returns the body, or an asynchronous function `fn(request, reply)` that send the response body invoking `reply(body)`. |
+| `delay`         | 0                                        | Delays the response by X milliseconds. |
+
+
 Example:
 ```js
 server.on({
@@ -102,13 +113,34 @@ server.on({
 });
 ```
 
-| Option          | Default                                  | Description |
-| --------------- | ---------------------------------------- | ----------- |
-| `method`        | `GET`                                    | HTTP method to match. Can be `*` to match any method. |
-| `path`          |                                          | HTTP request path to match. |
-| `filter`        |                                          | The value is a filter function `fn(request)`: if it returns `true` the handler gets executed. |
-| `reply.status`  | `200`                                    | HTTP response status code. Can be a `number` or a synchronous function `fn(request)` that returns the response status code. |
-| `reply.headers` | `{ "content-type": "application/json" }` | HTTP response headers. `content-length` is managed by the server implementation. |
-| `reply.body`    | empty string                             | HTTP response body. Can be a `string`, a synchronous function `fn(request)` that returns the body, or an asynchronous function `fn(request, reply)` that send the response body invoking `reply(body)`. |
-| `delay`         | 0                                        | Delays the response by X milliseconds. |
+or:
+```js
+server.on({
+    method: '*',
+    path: '/resource',
+    reply: {
+        status:  200,
+        headers: { "content-type": "application/json" },
+        body:    function(req) {
+            return req.method === "GET" ? JSON.stringify({ action: "read" }) : JSON.stringify({ action: "edit" });
+        }
+    }
+});
+```
 
+or:
+```js
+server.on({
+    method: '*',
+    path: '/resource',
+    reply: {
+        status:  200,
+        headers: { "content-type": "application/json" },
+        body:    function(req, reply) {
+            setTimeout(function() {
+                reply(req.method === "GET" ? JSON.stringify({ action: "read" }) : JSON.stringify({ action: "edit" }));
+            }, 100);
+        }
+    }
+});
+```
