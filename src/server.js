@@ -17,7 +17,14 @@ function Server(host, port, key, cert)
 {
     var server      = null,
         handlers    = [],
+        requests    = [],
         connections = [];
+
+    function _saveRequest(req, res, next) {
+        requests.push(req);
+
+        next();
+    }
 
     function _multipart(req, res, next) {
 
@@ -168,24 +175,11 @@ function Server(host, port, key, cert)
         res.end("Not Found");
     }
 
-
-    this.on = function(handler)
-    {
-        // Add default reply
-        handler.reply         = _({}).extend({ "status": 200, "body": "" }, handler.reply);
-        handler.reply.headers = _({}).extend({ "content-type": "application/json" }, handler.reply.headers);
-
-        // Add default method
-        handler = _({}).extend({ "method": "GET" }, handler);
-
-        handlers.push(handler);
-        return this;
-    };
-
     this.start = function(callback)
     {
         // Create app stack
         var connectApp = connect()
+            .use(_saveRequest)
             .use(_multipart)
             .use(_handleMockedRequest)
             .use(_handleDefaultRequest);
@@ -232,6 +226,9 @@ function Server(host, port, key, cert)
                 connection.on("close", function() {
                     connections = _(connections).without(connection);
                     if (connections.length === 0) {
+                        // Clear requests
+                        requests = [];
+
                         callback();
                     }
                 });
@@ -243,13 +240,41 @@ function Server(host, port, key, cert)
         server.close();
     };
 
+    this.on = function(handler) {
+        // Add default reply
+        handler.reply         = _({}).extend({ "status": 200, "body": "" }, handler.reply);
+        handler.reply.headers = _({}).extend({ "content-type": "application/json" }, handler.reply.headers);
+
+        // Add default method
+        handler = _({}).extend({ "method": "GET" }, handler);
+
+        handlers.push(handler);
+        return this;
+    };
+
+    /**
+     * Returns an array containing all requests received. If `filter` is defined,
+     * filters the requests by:
+     * - method
+     * - path
+     *
+     * @param  {Object} filter
+     * @return {Array}
+     */
+    this.requests = function(filter) {
+        return _(requests).filter(function(req) {
+            var reqParts = url.parse(req.url, true);
+            return !filter || filter.method === req.method || filter.path === reqParts.pathname;
+        });
+    };
 }
 
 function ServerVoid() {
 
-    this.on  = function() {};
-    this.start = function(callback) { callback(); };
-    this.stop  = function(callback) { callback(); };
+    this.on       = function() {};
+    this.start    = function(callback) { callback(); };
+    this.stop     = function(callback) { callback(); };
+    this.requests = function() { return []; };
 }
 
 /**
@@ -261,17 +286,7 @@ function ServerMock(httpConfig, httpsConfig)
     var httpServerMock  = httpConfig ?  new Server(httpConfig.host, httpConfig.port) : new ServerVoid();
     var httpsServerMock = httpsConfig ? new Server(httpsConfig.host, httpsConfig.port, httpsConfig.key, httpsConfig.cert) : new ServerVoid();
 
-
-    this.on = function(handler)
-    {
-        httpServerMock.on(handler);
-        httpsServerMock.on(handler);
-
-        return this;
-    };
-
-    this.start = function(callback)
-    {
+    this.start = function(callback) {
         httpServerMock.start(function() {
             httpsServerMock.start(function() {
                 callback();
@@ -279,13 +294,22 @@ function ServerMock(httpConfig, httpsConfig)
         });
     };
 
-    this.stop = function(callback)
-    {
+    this.stop = function(callback) {
         httpServerMock.stop(function() {
             httpsServerMock.stop(callback);
         });
     };
 
+    this.on = function(handler) {
+        httpServerMock.on(handler);
+        httpsServerMock.on(handler);
+
+        return this;
+    };
+
+    this.requests = function(filter) {
+        return httpServerMock.requests(filter).concat(httpsServerMock.requests(filter));
+    }
 }
 
 

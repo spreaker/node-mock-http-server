@@ -146,6 +146,28 @@ server.on({
 ```
 
 
+#### `requests(filter)`
+
+Returns an array containing all requests received. If `filter` is defined, it allows to filter requests by `method` and/or `path`.
+
+| Filter          | Description |
+| --------------- | ----------- |
+| `method`        | Filter requests by method. |
+| `path`          | Filter requests by path. |
+
+Example:
+```js
+// Returns all requests
+server.requests();
+
+// Returns all GET requests
+server.requests({ method: "GET" });
+
+// Returns all GET requests to /resource
+server.requests({ method: "GET", path: "/resource" });
+```
+
+
 ### License
 
 MIT
