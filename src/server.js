@@ -218,6 +218,9 @@ function Server(host, port, key, cert)
             handlers = [];
 
             if (connections.length === 0) {
+                // Clear requests
+                requests = [];
+
                 return callback();
             }
 
