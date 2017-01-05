@@ -92,7 +92,7 @@ Defines a request handler. Multiple calls to `on()` can be chained together.
 | Option          | Default                                  | Description |
 | --------------- | ---------------------------------------- | ----------- |
 | `method`        | `GET`                                    | HTTP method to match. Can be `*` to match any method. |
-| `path`          |                                          | HTTP request path to match. |
+| `path`          |                                          | HTTP request path to match. It can have parameters as defined by [`path-to-regexp`](https://www.npmjs.com/package/path-to-regexp). Ex. `/user/:id`. `id` can be accessed later using `req.param('id')` |
 | `filter`        |                                          | The value is a filter function `fn(request)`: if it returns `true` the handler gets executed. |
 | `reply.status`  | `200`                                    | HTTP response status code. Can be a `number` or a synchronous function `fn(request)` that returns the response status code. |
 | `reply.headers` | `{ "content-type": "application/json" }` | HTTP response headers. `content-length` is managed by the server implementation. |

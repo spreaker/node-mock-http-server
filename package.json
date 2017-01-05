@@ -19,6 +19,7 @@
   "dependencies": {
     "connect": "^3.4.0",
     "multiparty": "^4.1.2",
+    "path-to-regexp": "^1.7.0",
     "underscore": "^1.8.3"
   }
 }

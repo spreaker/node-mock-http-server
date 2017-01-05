@@ -5,7 +5,8 @@ var connect     = require('connect'),
     https       = require('https'),
     util        = require('util'),
     _           = require('underscore'),
-    multiparty  = require('multiparty');
+    multiparty  = require('multiparty'),
+    pathToRegexp = require('path-to-regexp');
 
 /**
  * @param {String} host     Server host
@@ -111,9 +112,18 @@ function Server(host, port, key, cert)
             var reqParts = url.parse(req.url, true);
             req.pathname = reqParts.pathname;
             req.query    = reqParts.query;
+            var keys = [];
+            var regExp = pathToRegexp(handler.path, keys);
+            var parsedPath = regExp.exec(req.url);
+            req.param = [];
+            if(parsedPath && keys.length>0) {
+                _.each(keys, function(k,i){
+                   req.param[k.name]= parsedPath[i+1];
+                });
+            }
 
             // Check if we can handle the request
-            if (handled || (handler.method != "*" && req.method != handler.method.toUpperCase()) || reqParts.pathname != handler.path || (handler.filter && handler.filter(req) !== true)) {
+            if (handled || (handler.method != "*" && req.method != handler.method.toUpperCase()) || parsedPath || (handler.filter && handler.filter(req) !== true)) {
                 return;
             }
 
