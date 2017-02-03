@@ -251,7 +251,7 @@ function Server(host, port, key, cert)
         // Add default method
         handler = _({}).extend({ "method": "GET" }, handler);
 
-        handlers.push(handler);
+        handlers.unshift(handler);
         return this;
     };
 
