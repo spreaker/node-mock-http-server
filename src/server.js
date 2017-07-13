@@ -6,6 +6,9 @@ var connect     = require('connect'),
     util        = require('util'),
     _           = require('underscore'),
     multiparty  = require('multiparty');
+    queryParams = require('query-params');
+    lodash      = require('lodash');
+    urlTrim     = require('url-trim');
 
 /**
  * @param {String} host     Server host
@@ -112,8 +115,27 @@ function Server(host, port, key, cert)
             req.pathname = reqParts.pathname;
             req.query    = reqParts.query;
 
+            // Parse path.
+            if (urlTrim(handler.path) !== urlTrim(req.url)) {
+              return;
+            }
+
+            // Parse params.
+            if (!req.url.includes('?') && lodash.has(handler, 'params')) {
+
+              return;
+            } else if (req.url.includes('?')){
+              const reqParams = queryParams.decode(req.url.split('?')[1]);
+              const handlerParams = lodash.get(handler, 'params', {});
+
+              if (!lodash.isEqual(reqParams, handlerParams)) {
+
+                return;
+              }
+            }
+
             // Check if we can handle the request
-            if (handled || (handler.method != "*" && req.method != handler.method.toUpperCase()) || reqParts.pathname != handler.path || (handler.filter && handler.filter(req) !== true)) {
+            if (handled || (handler.method != "*" && req.method != handler.method.toUpperCase()) || (handler.filter && handler.filter(req) !== true)) {
                 return;
             }
 
