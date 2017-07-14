@@ -18,7 +18,10 @@
   "homepage": "https://github.com/spreaker/node-mock-http-server",
   "dependencies": {
     "connect": "^3.4.0",
+    "lodash": "^4.17.4",
     "multiparty": "^4.1.2",
-    "underscore": "^1.8.3"
+    "query-params": "^0.0.1",
+    "underscore": "^1.8.3",
+    "url-trim": "^1.0.0"
   }
 }

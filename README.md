@@ -93,6 +93,7 @@ Defines a request handler. Multiple calls to `on()` can be chained together.
 | --------------- | ---------------------------------------- | ----------- |
 | `method`        | `GET`                                    | HTTP method to match. Can be `*` to match any method. |
 | `path`          |                                          | HTTP request path to match. |
+| `params`        |                                          | Query Parameters |
 | `filter`        |                                          | The value is a filter function `fn(request)`: if it returns `true` the handler gets executed. |
 | `reply.status`  | `200`                                    | HTTP response status code. Can be a `number` or a synchronous function `fn(request)` that returns the response status code. |
 | `reply.headers` | `{ "content-type": "application/json" }` | HTTP response headers. `content-length` is managed by the server implementation. |
@@ -109,6 +110,20 @@ server.on({
         status:  200,
         headers: { "content-type": "application/json" },
         body:    JSON.stringify({ hello: "world" })
+    }
+});
+```
+
+or:
+```js
+server.on({
+    method: 'GET',
+    path: '/resource',
+    params: { id: '1', class: '2' },
+    reply: {
+        status:  200,
+        headers: { "content-type": "application/json" },
+        body:    JSON.stringify({ page: "resource", id: "1", class: "2" })
     }
 });
 ```
