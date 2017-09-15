@@ -5,7 +5,8 @@ var connect     = require('connect'),
     https       = require('https'),
     util        = require('util'),
     _           = require('underscore'),
-    multiparty  = require('multiparty');
+    multiparty  = require('multiparty'),
+    bodyParser  = require('body-parser');
 
 /**
  * @param {String} host     Server host
@@ -63,6 +64,18 @@ function Server(host, port, key, cert)
 
             next();
         });
+    }
+
+    function _json(req, res, next) {
+      if (req.method !== 'POST' && req.method !== 'PUT' && req.method !== 'PATCH') {
+          return next();
+      }
+
+      if ('application/json' !== req.headers['content-type']) {
+          return next();
+      }
+
+      bodyParser.json()(req, res, next)
     }
 
     /**
@@ -181,6 +194,7 @@ function Server(host, port, key, cert)
         var connectApp = connect()
             .use(_saveRequest)
             .use(_multipart)
+            .use(_json)
             .use(_handleMockedRequest)
             .use(_handleDefaultRequest);
 
