@@ -113,7 +113,10 @@ function Server(host, port, key, cert)
             req.query    = reqParts.query;
 
             // Check if we can handle the request
-            if (handled || (handler.method != "*" && req.method != handler.method.toUpperCase()) || reqParts.pathname != handler.path || (handler.filter && handler.filter(req) !== true)) {
+            if (handled ||
+              (handler.method != "*" && req.method != handler.method.toUpperCase()) ||
+              (handler.path != "*" && reqParts.pathname != handler.path) || 
+              (handler.filter && handler.filter(req) !== true)) {
                 return;
             }
 
