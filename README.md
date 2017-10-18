@@ -168,6 +168,11 @@ server.requests({ method: "GET", path: "/resource" });
 ```
 
 
+### Contributions
+
+- [danedmunds](https://github.com/danedmunds)
+
+
 ### License
 
 MIT
