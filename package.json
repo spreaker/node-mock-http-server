@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/spreaker/node-mock-http-server",
   "dependencies": {
+    "body-parser": "^1.18.1",
     "connect": "^3.4.0",
     "multiparty": "^4.1.2",
     "underscore": "^1.8.3"

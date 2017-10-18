@@ -145,6 +145,29 @@ server.on({
 });
 ```
 
+or (JSON is parsed when the Content-Type is 'application/json'):
+```js
+server.on({
+    method: 'POST',
+    path: '/resources',
+    filter: function (req) {
+      return _.isEqual(req.body, {
+        name: 'someName',
+        someOtherValue: 1234
+      })
+    },
+    reply: {
+        status:  201,
+        headers: { "content-type": "application/json" },
+        body: {
+          id: 987654321,
+          name: 'someName',
+          someOtherValue: 1234
+        }
+    }
+});
+```
+
 
 #### `requests(filter)`
 
