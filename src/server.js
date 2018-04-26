@@ -128,7 +128,7 @@ function Server(host, port, key, cert)
             // Check if we can handle the request
             if (handled ||
               (handler.method != "*" && req.method != handler.method.toUpperCase()) ||
-              (handler.path != "*" && reqParts.pathname != handler.path) || 
+              (handler.path != "*" && reqParts.pathname != handler.path) ||
               (handler.filter && handler.filter(req) !== true)) {
                 return;
             }
@@ -149,6 +149,14 @@ function Server(host, port, key, cert)
                     var headers = _(handler.reply.headers)
                         .extend({ "content-length": length }, handler.reply.headersOverrides || {});
 
+                    // Remove undefined values from headers (useful to remove content-length from the response if
+                    // overridden with undefined)
+                    _.each(headers, function(headerValue, headerName) {
+                        if (headerValue === undefined) {
+                            delete headers[headerName];
+                        }
+                    });
+
                     // Remove "null" values from headers
                     _(headers).each(function(value, name) {
                         if (value !== null) {
@@ -167,8 +175,10 @@ function Server(host, port, key, cert)
                             res.write(content, encoding);
                         }
 
-                        // End response
-                        res.end();
+                        // End response (unless explicitly stated to keep it open)
+                        if (handler.reply.end !== false) {
+                            res.end();
+                        }
 
                     }, handler.delay || 0);
 
@@ -225,36 +235,36 @@ function Server(host, port, key, cert)
 
 
     this.stop = function (callback) {
-
         if (!server) {
             return callback();
         }
+
+        // Close connections
+        _(connections).forEach(function (connection) {
+            connection.end();
+        });
 
         server.on("close", function() {
             server   = null;
             handlers = [];
 
+            // Wait until all connections are closed
             if (connections.length === 0) {
-                // Clear requests
                 requests = [];
 
-                return callback();
-            }
+                callback();
+            } else {
+                _(connections).forEach(function (connection) {
+                    connection.on("close", function() {
+                        connections = _(connections).without(connection);
+                        if (connections.length === 0) {
+                            requests = [];
 
-            // Close connections
-            _(connections).forEach(function (connection) {
-                connection.on("close", function() {
-                    connections = _(connections).without(connection);
-                    if (connections.length === 0) {
-                        // Clear requests
-                        requests = [];
-
-                        callback();
-                    }
+                            callback();
+                        }
+                    });
                 });
-
-                connection.end();
-            });
+            }
         });
 
         server.close();
@@ -287,14 +297,24 @@ function Server(host, port, key, cert)
             return !filter || filter.method === req.method || filter.path === reqParts.pathname;
         });
     };
+
+    /**
+     * Returns an array containing all active connections.
+     *
+     * @return {Array}
+     */
+    this.connections = function() {
+        return connections;
+    };
 }
 
 function ServerVoid() {
 
-    this.on       = function() {};
-    this.start    = function(callback) { callback(); };
-    this.stop     = function(callback) { callback(); };
-    this.requests = function() { return []; };
+    this.on          = function() {};
+    this.start       = function(callback) { callback(); };
+    this.stop        = function(callback) { callback(); };
+    this.requests    = function() { return []; };
+    this.connections = function() { return []; };
 }
 
 /**
@@ -329,6 +349,10 @@ function ServerMock(httpConfig, httpsConfig)
 
     this.requests = function(filter) {
         return httpServerMock.requests(filter).concat(httpsServerMock.requests(filter));
+    }
+
+    this.connections = function() {
+        return httpServerMock.connections().concat(httpsServerMock.connections());
     }
 }
 

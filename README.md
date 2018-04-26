@@ -89,15 +89,17 @@ afterEach(function(done) {
 
 Defines a request handler. Multiple calls to `on()` can be chained together.
 
-| Option          | Default                                  | Description |
-| --------------- | ---------------------------------------- | ----------- |
-| `method`        | `GET`                                    | HTTP method to match. Can be `*` to match any method. |
-| `path`          |                                          | HTTP request path to match. Can be `*` to match any path (to be used in conjunction with filter to allow custom matching)|
-| `filter`        |                                          | The value is a filter function `fn(request)`: if it returns `true` the handler gets executed. |
-| `reply.status`  | `200`                                    | HTTP response status code. Can be a `number` or a synchronous function `fn(request)` that returns the response status code. |
-| `reply.headers` | `{ "content-type": "application/json" }` | HTTP response headers. `content-length` is managed by the server implementation. |
-| `reply.body`    | empty string                             | HTTP response body. Can be a `string`, a synchronous function `fn(request)` that returns the body, or an asynchronous function `fn(request, reply)` that send the response body invoking `reply(body)`. |
-| `delay`         | 0                                        | Delays the response by X milliseconds. |
+| Option                   | Default                                  | Description |
+| ------------------------ | ---------------------------------------- | ----------- |
+| `method`                 | `GET`                                    | HTTP method to match. Can be `*` to match any method. |
+| `path`                   |                                          | HTTP request path to match. Can be `*` to match any path (to be used in conjunction with filter to allow custom matching)|
+| `filter`                 |                                          | The value is a filter function `fn(request)`: if it returns `true` the handler gets executed. |
+| `reply.status`           | `200`                                    | HTTP response status code. Can be a `number` or a synchronous function `fn(request)` that returns the response status code. |
+| `reply.headers`          | `{ "content-type": "application/json" }` | HTTP response headers. `content-length` is managed by the server implementation. |
+| `reply.headersOverrides` | `{ "content-length": 1000 }`             | HTTP response headers to override to default headers (ie. `content-length`). If a value is set to `undefined`, the header gets removed from the response. |
+| `reply.body`             | empty string                             | HTTP response body. Can be a `string`, a synchronous function `fn(request)` that returns the body, or an asynchronous function `fn(request, reply)` that send the response body invoking `reply(body)`. |
+| `reply.end`              | `true`                                   | End the response once the body has been sent (default behaviour). If `false`, it will keep the response connection open indefinitely (useful to test special cases on the client side - ie. read timeout after partial body response sent). |
+| `delay`                  | 0                                        | Delays the response by X milliseconds. |
 
 
 Example:
@@ -189,6 +191,11 @@ server.requests({ method: "GET" });
 // Returns all GET requests to /resource
 server.requests({ method: "GET", path: "/resource" });
 ```
+
+
+#### `connections()`
+
+Returns an array containing all active connections.
 
 
 ### Contributions

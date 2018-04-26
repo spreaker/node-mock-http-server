@@ -1,5 +1,12 @@
 # Changelog
 
+#### 1.0.0 (2018-04-26)
+ * Added `reply.end` support
+ * Added `connections()` support
+ * Documented `reply.headersOverrides`
+ * Remove headers from response, whose value is `undefined`
+ * End all the connections on `server.stop()` before closing the HTTP server
+
 #### 0.2.0 (2017-10-18)
  * Added wildcard support to `path` (thanks to [danedmunds](https://github.com/danedmunds))
  * Parse JSON in incoming request body when request content-type is "application/json" (thanks to [danedmunds](https://github.com/danedmunds))
