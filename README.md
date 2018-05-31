@@ -16,11 +16,25 @@ describe('Test', function() {
     var server = new ServerMock({ host: "localhost", port: 9000 });
 
     beforeEach(function(done) {
-        server.start(done);
+        server.start(function(err) {
+            if(err) {
+                console.error(err);
+                process.exit(-1);
+            }
+          
+            done();
+        });
     });
 
     afterEach(function(done) {
-        server.stop(done);
+        server.stop(function(err) {
+            if(err) {
+                console.error(err);
+                process.exit(-1);
+            }
+                              
+            done();
+        });
     });
 
     it('should do something', function(done) {
@@ -65,23 +79,39 @@ var server = new ServerMock({
 #### `start(callback)`
 
 Starts the server and invokes the callback once ready to accept connections.
+An error object is passed to the callback if an error occurred. 
 
 Example:
 ```js
 beforeEach(function(done) {
-    server.start(done);
+    server.start(function(err) {
+        if(err) {
+            console.error(err);
+            process.exit(-1);
+        }
+       
+        done();
+    });
 });
 ```
 
 
 #### `stop(callback)`
 
-Stops the server and invokes the callback all resources have been released.
+Stops the server and invokes the callback all resources have been released. 
+An error object is passed to the callback if an error occurred. 
 
 Example:
 ```js
 afterEach(function(done) {
-    server.stop(done);
+    server.stop(function(err) {
+        if(err) {
+            console.error(err);
+            process.exit(-1);
+        }
+                          
+        done();
+    });
 });
 ```
 

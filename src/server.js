@@ -218,6 +218,10 @@ function Server(host, port, key, cert)
             server = http.createServer(connectApp);
         }
 
+        server.on("error", function (err) {
+            callback(err);
+        });
+
         server.on("connection", function (connection) {
             connection.on("close", function () {
                 connections = _(connections).without(connection);
@@ -244,9 +248,13 @@ function Server(host, port, key, cert)
             connection.end();
         });
 
-        server.on("close", function() {
+        server.close(function(err) {
             server   = null;
             handlers = [];
+
+            if (err) {
+                return callback(err);
+            }
 
             // Wait until all connections are closed
             if (connections.length === 0) {
@@ -266,8 +274,6 @@ function Server(host, port, key, cert)
                 });
             }
         });
-
-        server.close();
     };
 
     this.on = function(handler) {
@@ -327,16 +333,33 @@ function ServerMock(httpConfig, httpsConfig)
     var httpsServerMock = httpsConfig ? new Server(httpsConfig.host, httpsConfig.port, httpsConfig.key, httpsConfig.cert) : new ServerVoid();
 
     this.start = function(callback) {
-        httpServerMock.start(function() {
-            httpsServerMock.start(function() {
+        httpServerMock.start(function(httpErr) {
+            if (httpErr) {
+                return callback(httpErr);
+            }
+            httpsServerMock.start(function(httpsErr) {
+                if (httpsErr) {
+                    return callback(httpsErr);
+                }
+
                 callback();
             });
         });
     };
 
     this.stop = function(callback) {
-        httpServerMock.stop(function() {
-            httpsServerMock.stop(callback);
+        httpServerMock.stop(function(httpErr) {
+            if (httpErr) {
+                return callback(httpErr);
+            }
+
+            httpsServerMock.stop(function(httpsErr) {
+                if (httpsErr) {
+                    return callback(httpsErr);
+                }
+
+                callback();
+            });
         });
     };
 
