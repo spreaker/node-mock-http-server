@@ -201,7 +201,7 @@ function Server(host, port, key, cert)
         res.end("Not Found");
     }
 
-    this.start = function(callback)
+    this.start = function(callback, errCallback)
     {
         // Create app stack
         var connectApp = connect()
@@ -219,7 +219,7 @@ function Server(host, port, key, cert)
         }
 
         server.on("error", function (err) {
-            callback(err);
+            if (errCallback) errCallback(err);
         });
 
         server.on("connection", function (connection) {
@@ -332,19 +332,12 @@ function ServerMock(httpConfig, httpsConfig)
     var httpServerMock  = httpConfig ?  new Server(httpConfig.host, httpConfig.port) : new ServerVoid();
     var httpsServerMock = httpsConfig ? new Server(httpsConfig.host, httpsConfig.port, httpsConfig.key, httpsConfig.cert) : new ServerVoid();
 
-    this.start = function(callback) {
-        httpServerMock.start(function(httpErr) {
-            if (httpErr) {
-                return callback(httpErr);
-            }
-            httpsServerMock.start(function(httpsErr) {
-                if (httpsErr) {
-                    return callback(httpsErr);
-                }
-
+    this.start = function(callback, errCallback) {
+        httpServerMock.start(function() {
+            httpsServerMock.start(function() {
                 callback();
-            });
-        });
+            }, errCallback);
+        }, errCallback);
     };
 
     this.stop = function(callback) {

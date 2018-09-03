@@ -16,25 +16,15 @@ describe('Test', function() {
     var server = new ServerMock({ host: "localhost", port: 9000 });
 
     beforeEach(function(done) {
-        server.start(function(err) {
-            if(err) {
-                console.error(err);
-                process.exit(-1);
-            }
-          
-            done();
-        });
+       server.start(function() {
+           done();
+       }, function(err) {
+           done(err);
+       });
     });
 
     afterEach(function(done) {
-        server.stop(function(err) {
-            if(err) {
-                console.error(err);
-                process.exit(-1);
-            }
-                              
-            done();
-        });
+        server.stop(done);
     });
 
     it('should do something', function(done) {
@@ -84,13 +74,10 @@ An error object is passed to the callback if an error occurred.
 Example:
 ```js
 beforeEach(function(done) {
-    server.start(function(err) {
-        if(err) {
-            console.error(err);
-            process.exit(-1);
-        }
-       
+    server.start(function() {
         done();
+    }, function(err) {
+        done(err);
     });
 });
 ```
@@ -104,14 +91,7 @@ An error object is passed to the callback if an error occurred.
 Example:
 ```js
 afterEach(function(done) {
-    server.stop(function(err) {
-        if(err) {
-            console.error(err);
-            process.exit(-1);
-        }
-                          
-        done();
-    });
+    server.stop(done);
 });
 ```
 
