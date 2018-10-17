@@ -67,10 +67,6 @@ function Server(host, port, key, cert)
     }
 
     function _json(req, res, next) {
-      if ('application/json' !== req.headers['content-type']) {
-          return next();
-      }
-
       bodyParser.json()(req, res, next)
     }
 
