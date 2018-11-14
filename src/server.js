@@ -67,14 +67,6 @@ function Server(host, port, key, cert)
     }
 
     function _json(req, res, next) {
-      if (req.method !== 'POST' && req.method !== 'PUT' && req.method !== 'PATCH') {
-          return next();
-      }
-
-      if ('application/json' !== req.headers['content-type']) {
-          return next();
-      }
-
       bodyParser.json()(req, res, next)
     }
 
