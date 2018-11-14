@@ -66,10 +66,6 @@ function Server(host, port, key, cert)
         });
     }
 
-    function _json(req, res, next) {
-      bodyParser.json()(req, res, next)
-    }
-
     /**
      * Supports:
      * - { reply: { body: "data" }}
@@ -199,7 +195,7 @@ function Server(host, port, key, cert)
         var connectApp = connect()
             .use(_saveRequest)
             .use(_multipart)
-            .use(_json)
+            .use(bodyParser.json())
             .use(bodyParser.urlencoded({extended: true}))
             .use(_handleMockedRequest)
             .use(_handleDefaultRequest);

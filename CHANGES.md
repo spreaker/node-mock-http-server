@@ -1,5 +1,9 @@
 # Changelog
 
+#### 1.1.0 (2018-11-14)
+ * Added support to parse urlencoded request body (PR [#9](https://github.com/spreaker/node-mock-http-server/pull/9) - thanks to [zhaotian2470](https://github.com/zhaotian2470))
+ * Removed obsolete code in the parsing of JSON-encoded request body (PR [#16](https://github.com/spreaker/node-mock-http-server/pull/16) - thanks to [pitpit](https://github.com/pitpit))
+
 #### 1.0.0 (2018-04-26)
  * Added `reply.end` support
  * Added `connections()` support
