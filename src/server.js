@@ -17,6 +17,7 @@ var connect     = require('connect'),
 function Server(host, port, key, cert)
 {
     var server      = null,
+        address     = null,
         handlers    = [],
         requests    = [],
         connections = [];
@@ -216,6 +217,7 @@ function Server(host, port, key, cert)
         });
 
         server.on("listening", function () {
+            address = server.address();
             callback();
         });
 
@@ -235,6 +237,7 @@ function Server(host, port, key, cert)
 
         server.on("close", function() {
             server   = null;
+            address  = null;
             handlers = [];
 
             // Wait until all connections are closed
@@ -295,6 +298,15 @@ function Server(host, port, key, cert)
     this.connections = function() {
         return connections;
     };
+
+    /**
+     * Returns the port number if set or null otherwise
+     *
+     * @return {Number|null}
+     */
+    this.getPort = function() {
+        return address ? address.port : null;
+    }
 }
 
 function ServerVoid() {
@@ -304,6 +316,7 @@ function ServerVoid() {
     this.stop        = function(callback) { callback(); };
     this.requests    = function() { return []; };
     this.connections = function() { return []; };
+    this.getPort     = function() { return null; };
 }
 
 /**
@@ -342,6 +355,14 @@ function ServerMock(httpConfig, httpsConfig)
 
     this.connections = function() {
         return httpServerMock.connections().concat(httpsServerMock.connections());
+    }
+
+    this.getHttpPort = function() {
+        return httpServerMock.getPort();
+    }
+
+    this.getHttpsPort = function() {
+        return httpsServerMock.getPort();
     }
 }
 
