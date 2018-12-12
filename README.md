@@ -198,6 +198,17 @@ server.requests({ method: "GET", path: "/resource" });
 Returns an array containing all active connections.
 
 
+#### `getHttpPort()`
+
+Returns the port at which the HTTP server is listening to or `null` otherwise. This may be useful if you configure the HTTP server port to `0` which means the operating system will assign an arbitrary unused port.
+
+
+#### `getHttpsPort()`
+
+Returns the port at which the HTTPS server is listening to or `null` otherwise. This may be useful if you configure the HTTPS server port to `0` which means the operating system will assign an arbitrary unused port.
+
+
+
 ### Contributions
 
 - [danedmunds](https://github.com/danedmunds)
