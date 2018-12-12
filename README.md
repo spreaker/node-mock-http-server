@@ -209,9 +209,17 @@ Returns the port at which the HTTPS server is listening to or `null` otherwise. 
 
 
 
-### Contributions
+## Contribute
 
-- [danedmunds](https://github.com/danedmunds)
+### How to publish a new version
+
+**Release npm package**:
+
+1. Update version in `package.json` and `package-lock.json`
+2. Update `CHANGES.md`
+3. Release new version on GitHub
+4. Run `npm publish`
+
 
 
 ### License

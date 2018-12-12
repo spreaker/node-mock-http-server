@@ -1,5 +1,8 @@
 # Changelog
 
+#### 1.2.0 (2018-12-12)
+ * Added `getHttpPort()` and `getHttpsPort()` (PR [#18](https://github.com/spreaker/node-mock-http-server/pull/18) - thanks to [Nautigsam](https://github.com/Nautigsam))
+
 #### 1.1.0 (2018-11-14)
  * Added support to parse urlencoded request body (PR [#9](https://github.com/spreaker/node-mock-http-server/pull/9) - thanks to [zhaotian2470](https://github.com/zhaotian2470))
  * Removed obsolete code in the parsing of JSON-encoded request body (PR [#16](https://github.com/spreaker/node-mock-http-server/pull/16) - thanks to [pitpit](https://github.com/pitpit))
