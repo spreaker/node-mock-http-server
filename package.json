@@ -4,7 +4,7 @@
   "description": "Controllable HTTP Server Mock for your functional tests",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./node_modules/.bin/jasmine"
   },
   "repository": {
     "type": "git",
@@ -21,5 +21,8 @@
     "connect": "^3.4.0",
     "multiparty": "^4.1.2",
     "underscore": "^1.8.3"
+  },
+  "devDependencies": {
+    "jasmine": "^3.3.1"
   }
 }
