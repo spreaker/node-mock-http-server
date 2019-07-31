@@ -274,6 +274,10 @@ function Server(host, port, key, cert)
         return this;
     };
 
+    this.resetHandlers = function() {
+        handlers = [];
+    };
+
     /**
      * Returns an array containing all requests received. If `filter` is defined,
      * filters the requests by:
@@ -311,12 +315,13 @@ function Server(host, port, key, cert)
 
 function ServerVoid() {
 
-    this.on          = function() {};
-    this.start       = function(callback) { callback(); };
-    this.stop        = function(callback) { callback(); };
-    this.requests    = function() { return []; };
-    this.connections = function() { return []; };
-    this.getPort     = function() { return null; };
+    this.on            = function() {};
+    this.start         = function(callback) { callback(); };
+    this.stop          = function(callback) { callback(); };
+    this.requests      = function() { return []; };
+    this.connections   = function() { return []; };
+    this.getPort       = function() { return null; };
+    this.resetHandlers = function() {};
 }
 
 /**
@@ -363,6 +368,11 @@ function ServerMock(httpConfig, httpsConfig)
 
     this.getHttpsPort = function() {
         return httpsServerMock.getPort();
+    }
+
+    this.resetHandlers = function() {
+        httpServerMock.resetHandlers();
+        httpsServerMock.resetHandlers();
     }
 }
 
