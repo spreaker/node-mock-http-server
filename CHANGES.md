@@ -1,5 +1,8 @@
 # Changelog
 
+#### 1.3.0 (2019-07-31)
+ * Added `resetHandlers()` (PR [#19](https://github.com/spreaker/node-mock-http-server/pull/19) - thanks to [jyte](https://github.com/jyte))
+
 #### 1.2.0 (2018-12-12)
  * Added `getHttpPort()` and `getHttpsPort()` (PR [#18](https://github.com/spreaker/node-mock-http-server/pull/18) - thanks to [Nautigsam](https://github.com/Nautigsam))
 
