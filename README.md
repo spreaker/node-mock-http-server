@@ -208,6 +208,11 @@ Returns the port at which the HTTP server is listening to or `null` otherwise. T
 Returns the port at which the HTTPS server is listening to or `null` otherwise. This may be useful if you configure the HTTPS server port to `0` which means the operating system will assign an arbitrary unused port.
 
 
+#### `resetHandlers()`
+
+Clears all request handlers that were previously set using `on()` method.
+
+
 
 ## Contribute
 
