@@ -72,5 +72,24 @@ describe("ServerMock", () => {
             expect(res.headers["content-type"]).toBe("plain/text");
             expect(res.body).toBe("Not Found");
         });
+
+        it("should get a text plain body when content-type is text/plain", async () => {
+            server.on({
+                method: "POST",
+                path: "/resource",
+                reply: {
+                    status: function(req) {
+                        if (req.body !== "Hello world\nThis is a text") {
+                            return 403;
+                        }
+                        return 200;
+                    }
+                }
+            });
+
+            const res = await client.request("localhost", server.getHttpPort(), "POST", "/resource", { "Content-Type": "text/plain" }, "Hello world\nThis is a text");
+
+            expect(res.statusCode).toBe(200);
+        });
     });
 });
