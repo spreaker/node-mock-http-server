@@ -11,9 +11,9 @@ const http = require("http");
  * @param  {String} path
  * @return {Promise}
  */
-module.exports.request = (host, port, method, path) => {
+module.exports.request = (host, port, method, path, headers, body) => {
     return new Promise((resolve, reject) => {
-        const req = http.request({ host: host, port: port, method: method, path: path }, (res) => {
+        const req = http.request({ host: host, port: port, method: method, headers: headers, path: path }, (res) => {
             res.body = "";
 
             res.on("data", (chunk) => {
@@ -28,6 +28,10 @@ module.exports.request = (host, port, method, path) => {
         req.on("error", (err) => {
             reject(err);
         });
+
+        if (body) {
+            req.write(body);
+        }
 
         req.end();
     });
