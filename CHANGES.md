@@ -1,5 +1,8 @@
 # Changelog
 
+#### 1.4.0 (2019-09-16)
+ * Added support to parse request body with `Content-Type: text-plain` (PR [#20](https://github.com/spreaker/node-mock-http-server/pull/20) - thanks to [esanchezm](https://github.com/esanchezm))
+
 #### 1.3.0 (2019-07-31)
  * Added `resetHandlers()` (PR [#19](https://github.com/spreaker/node-mock-http-server/pull/19) - thanks to [jyte](https://github.com/jyte))
 
