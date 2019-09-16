@@ -197,6 +197,7 @@ function Server(host, port, key, cert)
             .use(_saveRequest)
             .use(_multipart)
             .use(bodyParser.json())
+            .use(bodyParser.text())
             .use(bodyParser.urlencoded({extended: true}))
             .use(_handleMockedRequest)
             .use(_handleDefaultRequest);
