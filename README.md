@@ -173,7 +173,7 @@ server.on({
 
 #### `requests(filter)`
 
-Returns an array containing all requests received. If `filter` is defined, it allows to filter requests by `method` and/or `path`.
+Returns an array containing all requests received. If `filter` is defined, it allows to filter requests by `method`, `path`, or both.
 
 | Filter          | Description |
 | --------------- | ----------- |
