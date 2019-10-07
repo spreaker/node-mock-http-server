@@ -1,5 +1,8 @@
 # Changelog
 
+#### 1.4.1 (2019-10-07)
+ * Fixed `requests()` filtering: multiple conditions are now in **and** instead of **or** (PR [#21](https://github.com/spreaker/node-mock-http-server/pull/21) - thanks to [danroshko](https://github.com/danroshko))
+
 #### 1.4.0 (2019-09-16)
  * Added support to parse request body with `Content-Type: text-plain` (PR [#20](https://github.com/spreaker/node-mock-http-server/pull/20) - thanks to [esanchezm](https://github.com/esanchezm))
 

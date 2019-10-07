@@ -1,6 +1,6 @@
 {
   "name": "mock-http-server",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Controllable HTTP Server Mock for your functional tests",
   "main": "index.js",
   "scripts": {
