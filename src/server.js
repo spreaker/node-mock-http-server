@@ -291,7 +291,10 @@ function Server(host, port, key, cert)
     this.requests = function(filter) {
         return _(requests).filter(function(req) {
             var reqParts = url.parse(req.url, true);
-            return !filter || filter.method === req.method || filter.path === reqParts.pathname;
+            const methodMatch = !filter || !filter.method || filter.method === req.method;
+            const pathMatch = !filter || !filter.path || filter.path === reqParts.pathname;
+
+            return methodMatch && pathMatch;
         });
     };
 
