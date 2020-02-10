@@ -213,6 +213,11 @@ Returns the port at which the HTTPS server is listening to or `null` otherwise. 
 Clears all request handlers that were previously set using `on()` method.
 
 
+#### `cleanRequests()`
+
+Clears all requests received by the HTTP server.
+
+
 
 ## Contribute
 
