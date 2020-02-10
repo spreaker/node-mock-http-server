@@ -20,7 +20,8 @@ function Server(host, port, key, cert)
         address     = null,
         handlers    = [],
         requests    = [],
-        connections = [];
+        connections = [],
+        self = this;
 
     function _saveRequest(req, res, next) {
         requests.push(req);
@@ -277,7 +278,12 @@ function Server(host, port, key, cert)
 
     this.resetHandlers = function() {
         handlers = [];
+        self.cleanRequests();
     };
+
+    this.cleanRequests = function() {
+        requests = [];
+    }
 
     /**
      * Returns an array containing all requests received. If `filter` is defined,
@@ -326,6 +332,7 @@ function ServerVoid() {
     this.connections   = function() { return []; };
     this.getPort       = function() { return null; };
     this.resetHandlers = function() {};
+    this.cleanRequests = function() {};
 }
 
 /**
@@ -377,6 +384,11 @@ function ServerMock(httpConfig, httpsConfig)
     this.resetHandlers = function() {
         httpServerMock.resetHandlers();
         httpsServerMock.resetHandlers();
+    }
+
+    this.cleanRequests = function() {
+        httpServerMock.cleanRequests();
+        httpsServerMock.cleanRequests();
     }
 }
 

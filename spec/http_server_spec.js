@@ -92,4 +92,142 @@ describe("ServerMock", () => {
             expect(res.statusCode).toBe(200);
         });
     });
+
+    
+    describe("requests()", () => {
+        beforeEach(done => {
+            server = new ServerMock({ host: "localhost", port: 0 });
+            server.start(async () => {
+                server.on({
+                    method: "PUT",
+                    path:   "/dog",
+                    reply:  {
+                        status:  200,
+                        headers: { "content-type": "application/json" },
+                        body:    JSON.stringify({ breed: "German Shepherd" })
+                    }
+                });
+                server.on({
+                    method: "POST",
+                    path:   "/cat",
+                    reply:  {
+                        status:  200,
+                        headers: { "content-type": "application/json" },
+                        body:    JSON.stringify({ breed: "Maine coon" })
+                    }
+                });
+                server.on({
+                    method: "DELETE",
+                    path:   "/bird",
+                    reply:  {
+                        status:  204,
+                        headers: { "content-type": "application/json" }
+                    }
+                });
+
+                await client.request("localhost", server.getHttpPort(), "PUT", "/dog", { "Content-Type": "application/json" }, JSON.stringify({ breed: "German Shepherd" })).catch(error => console.error(error));
+                await client.request("localhost", server.getHttpPort(), "POST", "/cat", { "Content-Type": "application/json" }, JSON.stringify({ breed: "Maine coon" })).catch(error => console.error(error));
+                await client.request("localhost", server.getHttpPort(), "DELETE", "/bird").catch(error => console.error(error));
+
+                done();
+            });
+        });
+
+        it("should return all requests when given no arguments", async() => {
+            const requests = server.requests();
+
+            expect(requests).not.toBeNull();
+            expect(requests.length).toBe(3);
+        });
+        
+        it("should return the request emitted on dog API when path equals 'dog'", () => {
+            const requests = server.requests({ path: '/dog' });
+
+            expect(requests).not.toBeNull();
+            expect(requests.length).toBe(1);
+            expect(requests[0].pathname).toBe('/dog');
+            expect(requests[0].method).toBe('PUT');
+        });
+                
+        it("should return the request emitted on cat API when method equals 'POST'", () => {
+            const requests = server.requests({ method: 'POST' });
+
+            expect(requests).not.toBeNull();
+            expect(requests.length).toBe(1);
+            expect(requests[0].pathname).toBe('/cat');
+            expect(requests[0].method).toBe('POST');
+        });
+                        
+        it("should return the request emitted on bird API when method equals 'DELETE' and path equals 'bird'", () => {
+            const requests = server.requests({ path: '/bird', method: 'DELETE' });
+
+            expect(requests).not.toBeNull();
+            expect(requests.length).toBe(1);
+            expect(requests[0].pathname).toBe('/bird');
+            expect(requests[0].method).toBe('DELETE');
+        });
+    });
+
+    describe("cleanRequests()", () => {
+        beforeEach(done => {
+            server = new ServerMock({ host: "localhost", port: 0 });
+            server.start(async () => {
+                server.on({
+                    method: "GET",
+                    path:   "/resource",
+                    reply:  {
+                        status:  200,
+                        headers: { "content-type": "application/json" },
+                        body:    JSON.stringify({ hello: "world" })
+                    }
+                });
+
+                await client.request("localhost", server.getHttpPort(), "GET", "/resource");
+
+                done();
+            });
+        });
+
+        it("should leave a empty requests array", () => {
+            server.cleanRequests();
+
+            const requests = server.requests();
+            expect(requests).not.toBeNull();
+
+            expect(requests.length).toBe(0, "Requests weren't cleaned");
+        });
+    });
+    
+    describe("resetHandlers()", () => {
+        beforeEach(done => {
+            server = new ServerMock({ host: "localhost", port: 0 });
+            server.start(() => {
+                server.on({
+                    method: "GET",
+                    path:   "/resource",
+                    reply:  {
+                        status:  200,
+                        headers: { "content-type": "application/json" },
+                        body:    JSON.stringify({ hello: "world" })
+                    }
+                });
+
+                done();
+            });
+        });
+
+        it("should return only Not Found error after being invoked", async () => {
+            const res1 = await client.request("localhost", server.getHttpPort(), "GET", "/resource");
+            expect(res1.statusCode).toBe(200);
+
+            server.resetHandlers();
+            
+            // requests array must also be cleaned
+            expect(server.requests().length).toBe(0);
+
+            // As there isn't any handler anymore, returns a Not Found error.
+            const res2 = await client.request("localhost", server.getHttpPort(), "GET", "/resource");
+            expect(res2.statusCode).toBe(404);
+        });
+    });
 });
