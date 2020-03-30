@@ -168,7 +168,7 @@ describe("ServerMock", () => {
         });
     });
 
-    describe("cleanRequests()", () => {
+    describe("reset()", () => {
         beforeEach(done => {
             server = new ServerMock({ host: "localhost", port: 0 });
             server.start(async () => {
@@ -188,8 +188,49 @@ describe("ServerMock", () => {
             });
         });
 
-        it("should leave a empty requests array", () => {
-            server.cleanRequests();
+        it("should return only Not Found error after being invoked", async () => {
+            const res1 = await client.request("localhost", server.getHttpPort(), "GET", "/resource");
+            expect(res1.statusCode).toBe(200);
+
+            server.reset();
+
+            // As there isn't any handler anymore, returns a Not Found error.
+            const res2 = await client.request("localhost", server.getHttpPort(), "GET", "/resource");
+            expect(res2.statusCode).toBe(404);
+        });
+
+        it("should leave an empty requests array", () => {
+            server.reset();
+
+            const requests = server.requests();
+            expect(requests).not.toBeNull();
+
+            expect(requests.length).toBe(0, "Requests weren't cleaned");
+        });
+    });
+
+    describe("resetRequests()", () => {
+        beforeEach(done => {
+            server = new ServerMock({ host: "localhost", port: 0 });
+            server.start(async () => {
+                server.on({
+                    method: "GET",
+                    path:   "/resource",
+                    reply:  {
+                        status:  200,
+                        headers: { "content-type": "application/json" },
+                        body:    JSON.stringify({ hello: "world" })
+                    }
+                });
+
+                await client.request("localhost", server.getHttpPort(), "GET", "/resource");
+
+                done();
+            });
+        });
+
+        it("should leave an empty requests array", () => {
+            server.resetRequests();
 
             const requests = server.requests();
             expect(requests).not.toBeNull();
@@ -221,9 +262,6 @@ describe("ServerMock", () => {
             expect(res1.statusCode).toBe(200);
 
             server.resetHandlers();
-            
-            // requests array must also be cleaned
-            expect(server.requests().length).toBe(0);
 
             // As there isn't any handler anymore, returns a Not Found error.
             const res2 = await client.request("localhost", server.getHttpPort(), "GET", "/resource");

@@ -276,12 +276,25 @@ function Server(host, port, key, cert)
         return this;
     };
 
+    /**
+     * Clears request handlers and requests received by the HTTP server.
+     */
+    this.reset = function() {
+        self.resetHandlers();
+        self.resetRequests();
+    }
+
+    /**
+     * Clears all request handlers that were previously set using `on()` method.
+     */
     this.resetHandlers = function() {
         handlers = [];
-        self.cleanRequests();
     };
 
-    this.cleanRequests = function() {
+    /**
+     * Clears all requests received by the HTTP server.
+     */
+    this.resetRequests = function() {
         requests = [];
     }
 
@@ -331,8 +344,9 @@ function ServerVoid() {
     this.requests      = function() { return []; };
     this.connections   = function() { return []; };
     this.getPort       = function() { return null; };
+    this.reset         = function() {};
     this.resetHandlers = function() {};
-    this.cleanRequests = function() {};
+    this.resetRequests = function() {};
 }
 
 /**
@@ -381,14 +395,19 @@ function ServerMock(httpConfig, httpsConfig)
         return httpsServerMock.getPort();
     }
 
+    this.reset = function() {
+        httpServerMock.reset();
+        httpsServerMock.reset();
+    }
+
     this.resetHandlers = function() {
         httpServerMock.resetHandlers();
         httpsServerMock.resetHandlers();
     }
 
-    this.cleanRequests = function() {
-        httpServerMock.cleanRequests();
-        httpsServerMock.cleanRequests();
+    this.resetRequests = function() {
+        httpServerMock.resetRequests();
+        httpsServerMock.resetRequests();
     }
 }
 

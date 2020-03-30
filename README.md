@@ -207,13 +207,16 @@ Returns the port at which the HTTP server is listening to or `null` otherwise. T
 
 Returns the port at which the HTTPS server is listening to or `null` otherwise. This may be useful if you configure the HTTPS server port to `0` which means the operating system will assign an arbitrary unused port.
 
+#### `reset()`
+
+Clears request handlers and requests received by the HTTP server.
 
 #### `resetHandlers()`
 
 Clears all request handlers that were previously set using `on()` method.
 
 
-#### `cleanRequests()`
+#### `resetRequests()`
 
 Clears all requests received by the HTTP server.
 
