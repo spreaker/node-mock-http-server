@@ -20,7 +20,8 @@ function Server(host, port, key, cert)
         address     = null,
         handlers    = [],
         requests    = [],
-        connections = [];
+        connections = [],
+        self = this;
 
     function _saveRequest(req, res, next) {
         requests.push(req);
@@ -275,9 +276,27 @@ function Server(host, port, key, cert)
         return this;
     };
 
+    /**
+     * Clears request handlers and requests received by the HTTP server.
+     */
+    this.reset = function() {
+        self.resetHandlers();
+        self.resetRequests();
+    }
+
+    /**
+     * Clears all request handlers that were previously set using `on()` method.
+     */
     this.resetHandlers = function() {
         handlers = [];
     };
+
+    /**
+     * Clears all requests received by the HTTP server.
+     */
+    this.resetRequests = function() {
+        requests = [];
+    }
 
     /**
      * Returns an array containing all requests received. If `filter` is defined,
@@ -325,7 +344,9 @@ function ServerVoid() {
     this.requests      = function() { return []; };
     this.connections   = function() { return []; };
     this.getPort       = function() { return null; };
+    this.reset         = function() {};
     this.resetHandlers = function() {};
+    this.resetRequests = function() {};
 }
 
 /**
@@ -374,9 +395,19 @@ function ServerMock(httpConfig, httpsConfig)
         return httpsServerMock.getPort();
     }
 
+    this.reset = function() {
+        httpServerMock.reset();
+        httpsServerMock.reset();
+    }
+
     this.resetHandlers = function() {
         httpServerMock.resetHandlers();
         httpsServerMock.resetHandlers();
+    }
+
+    this.resetRequests = function() {
+        httpServerMock.resetRequests();
+        httpsServerMock.resetRequests();
     }
 }
 
