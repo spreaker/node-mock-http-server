@@ -1,6 +1,6 @@
 # Node.js HTTP Server Mock
 
-Mockable HTTP Server your functional tests.
+Mockable http server for your functional tests.
 
 `npm install mock-http-server`
 
