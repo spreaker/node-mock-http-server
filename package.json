@@ -3,6 +3,7 @@
   "version": "1.4.2",
   "description": "Controllable HTTP Server Mock for your functional tests",
   "main": "index.js",
+  "types": "index.d.ts",
   "scripts": {
     "test": "./node_modules/.bin/jasmine"
   },
