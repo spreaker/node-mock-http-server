@@ -1,5 +1,7 @@
 # Changelog
 
+#### 1.4.3 (2021-05-28)
+ * Fallback to `text/plain` body parse in the request when format is not handled.
 #### 1.4.1 (2019-10-07)
  * Fixed `requests()` filtering: multiple conditions are now in **and** instead of **or** (PR [#21](https://github.com/spreaker/node-mock-http-server/pull/21) - thanks to [danroshko](https://github.com/danroshko))
 

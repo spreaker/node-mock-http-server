@@ -200,6 +200,7 @@ function Server(host, port, key, cert)
             .use(bodyParser.json())
             .use(bodyParser.text())
             .use(bodyParser.urlencoded({extended: true}))
+            .use(bodyParser.text({type: "*/*"}))
             .use(_handleMockedRequest)
             .use(_handleDefaultRequest);
 
