@@ -1,5 +1,7 @@
 # Changelog
 
+#### 1.4.4 (2021-06-08)
+ * Improve fallback to `text/plain` body parse in the request when format is not handled.
 #### 1.4.3 (2021-05-28)
  * Fallback to `text/plain` body parse in the request when format is not handled.
 #### 1.4.1 (2019-10-07)
