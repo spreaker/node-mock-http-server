@@ -110,6 +110,25 @@ describe("ServerMock", () => {
 
             expect(res.statusCode).toBe(200);
         });
+
+        it("should get a text plain body as a fallback when no content type is passed", async () => {
+            server.on({
+                method: "POST",
+                path: "/resource",
+                reply: {
+                    status: function(req) {
+                        if (req.body !== "{}\n{}\n") {
+                            return 403;
+                        }
+                        return 200;
+                    }
+                }
+            });
+
+            const res = await client.request("localhost", server.getHttpPort(), "POST", "/resource",  {}, "{}\n{}\n");
+
+            expect(res.statusCode).toBe(200);
+        });
     });
 
     
