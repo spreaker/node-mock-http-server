@@ -43,6 +43,9 @@ function Server(host, port, key, cert)
 
         form.parse(req, function(err, fields, files) {
 
+            // mark the body as parsed so other parsers don't attempt to parse the request
+            req._body = true;
+
             req.body  = {};
             req.files = {};
 

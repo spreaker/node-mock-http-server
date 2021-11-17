@@ -129,6 +129,29 @@ describe("ServerMock", () => {
 
             expect(res.statusCode).toBe(200);
         });
+
+        it("should successfully parse a multipart form", async () => {
+            server.on({
+                method: "POST",
+                path: "/resource",
+                reply: {
+                    status: 204,
+                    headers: {},
+                    body: null,
+                }
+            });
+
+            const res = await client.request("localhost", server.getHttpPort(), "POST", "/resource", {
+                'content-type': 'multipart/form-data; boundary=--------MYBOUNDARY',
+            }, [
+                "--------MYBOUNDARY",
+                "Content-Disposition: form-data; name=\"hello\"",
+                "",
+                "world!",
+            ].join("\n"));
+
+            expect(res.statusCode).toBe(204);
+        });
     });
 
     
