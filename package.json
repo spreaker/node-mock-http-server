@@ -2,9 +2,9 @@
   "name": "mock-http-server",
   "version": "1.4.5",
   "description": "Controllable HTTP Server Mock for your functional tests",
-  "main": "index.js",
+  "main": "src/server.js",
   "scripts": {
-    "test": "./node_modules/.bin/jasmine"
+    "test": "jasmine"
   },
   "repository": {
     "type": "git",
