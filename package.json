@@ -2,9 +2,9 @@
   "name": "mock-http-server",
   "version": "1.4.5",
   "description": "Controllable HTTP Server Mock for your functional tests",
-  "main": "index.js",
+  "main": "src/server.js",
   "scripts": {
-    "test": "./node_modules/.bin/jasmine"
+    "test": "jasmine"
   },
   "repository": {
     "type": "git",
@@ -19,8 +19,7 @@
   "dependencies": {
     "body-parser": "^1.18.1",
     "connect": "^3.4.0",
-    "multiparty": "^4.1.2",
-    "underscore": "^1.8.3"
+    "multiparty": "^4.1.2"
   },
   "devDependencies": {
     "jasmine": "^3.3.1"

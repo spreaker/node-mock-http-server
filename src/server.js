@@ -1,27 +1,23 @@
-var connect     = require('connect'),
-    url         = require('url'),
-    fs          = require('fs'),
-    http        = require('http'),
-    https       = require('https'),
-    util        = require('util'),
-    _           = require('underscore'),
-    multiparty  = require('multiparty'),
-    bodyParser  = require('body-parser');
+const url = require('url');
+const http = require('http');
+const https = require('https');
+const connect = require('connect');
+const multiparty = require('multiparty');
+const bodyParser = require('body-parser');
 
 /**
- * @param {String} host     Server host
- * @param {String} port     Server port
- * @param {String} key      HTTPS key (if missing the server is HTTP)
- * @param {String} cert     HTTPS certificate (if missing the server is HTTP)
+ * @param {string} host     Server host
+ * @param {number} port     Server port
+ * @param {string} [key]      HTTPS key (if missing the server is HTTP)
+ * @param {string} [cert]     HTTPS certificate (if missing the server is HTTP)
  */
 function Server(host, port, key, cert)
 {
-    var server      = null,
-        address     = null,
-        handlers    = [],
-        requests    = [],
-        connections = [],
-        self = this;
+    const connections = new Set();
+    let handlers = [];
+    let requests = [];
+    let server = null;
+    let address = null;
 
     function _saveRequest(req, res, next) {
         requests.push(req);
@@ -39,7 +35,7 @@ function Server(host, port, key, cert)
             return next();
         }
 
-        var form = new multiparty.Form();
+        const form = new multiparty.Form();
 
         form.parse(req, function(err, fields, files) {
 
@@ -51,7 +47,7 @@ function Server(host, port, key, cert)
 
             if (err) { return next(); }
 
-            _.each(fields, function(value, name){
+            Object.entries(fields).forEach(([name, value]) => {
                 if (Array.isArray(value) && value.length === 1) {
                     req.body[name] = value[0];
                 } else {
@@ -59,7 +55,7 @@ function Server(host, port, key, cert)
                 }
             });
 
-            _.each(files, function(value, name){
+            Object.entries(files).forEach(([name, value]) => {
                 if (Array.isArray(value) && value.length === 1) {
                     req.files[name] = value[0];
                 } else {
@@ -79,16 +75,16 @@ function Server(host, port, key, cert)
      */
     function _getResponseBody(handler, req, callback) {
         // String
-        if (!_(handler.reply.body).isFunction()) {
+        if (!(typeof handler.reply.body === 'function')) {
             return callback(handler.reply.body || "");
         }
 
-        // Synch function
+        // Sync function
         if (handler.reply.body.length <= 1) {
             return callback(handler.reply.body(req) || "");
         }
 
-        // Asynch function
+        // Async function
         handler.reply.body(req, callback);
     }
 
@@ -99,29 +95,29 @@ function Server(host, port, key, cert)
      */
     function _getResponseStatus(handler, req, callback) {
         // Number
-        if (!_(handler.reply.status).isFunction()) {
+        if (!(typeof handler.reply.status === 'function')) {
             return callback(handler.reply.status || 0);
         }
 
-        // Synch function
+        // Sync function
         return callback(handler.reply.status(req) || 0);
     }
 
     function _handleMockedRequest(req, res, next) {
 
-        var handled = false;
+        let handled = false;
 
-        _(handlers).each(function(handler) {
+        handlers.forEach((handler) => {
 
             // Parse request URL
-            var reqParts = url.parse(req.url, true);
+            const reqParts = url.parse(req.url, true);
             req.pathname = reqParts.pathname;
             req.query    = reqParts.query;
 
             // Check if we can handle the request
             if (handled ||
-              (handler.method != "*" && req.method != handler.method.toUpperCase()) ||
-              (handler.path != "*" && reqParts.pathname != handler.path) ||
+              (handler.method !== "*" && req.method !== handler.method.toUpperCase()) ||
+              (handler.path !== "*" && reqParts.pathname !== handler.path) ||
               (handler.filter && handler.filter(req) !== true)) {
                 return;
             }
@@ -134,28 +130,30 @@ function Server(host, port, key, cert)
                 _getResponseStatus(handler, req, function(status) {
 
                     // Prepare response data
-                    var encoding = Buffer.isBuffer(content) ? undefined : "utf8";
-                    var length   = Buffer.isBuffer(content) ? content.length : Buffer.byteLength(content, "utf8");
+                    const encoding = Buffer.isBuffer(content) ? undefined : "utf8";
+                    const length   = Buffer.isBuffer(content) ? content.length : Buffer.byteLength(content, "utf8");
 
                     // Prepare headers
-                    var headersToSend = {};
-                    var headers = _(handler.reply.headers)
-                        .extend({ "content-length": length }, handler.reply.headersOverrides || {});
-
                     // Remove undefined values from headers (useful to remove content-length from the response if
                     // overridden with undefined)
-                    _.each(headers, function(headerValue, headerName) {
-                        if (headerValue === undefined) {
-                            delete headers[headerName];
+                    const headers = Object.entries({
+                        ...handler.reply.headers,
+                        'content-length': length,
+                        ...(handler.reply.headersOverrides || {}),
+                    }).reduce((accum, [headerName, headerValue]) => {
+                        if (headerValue !== undefined) {
+                            accum[headerName] = headerValue;
                         }
-                    });
+                        return accum;
+                    }, {});
 
                     // Remove "null" values from headers
-                    _(headers).each(function(value, name) {
+                    const headersToSend = Object.entries(headers).reduce((accum, [name, value]) => {
                         if (value !== null) {
-                            headersToSend[name] = value;
+                            accum[name] = value;
                         }
-                    });
+                        return accum;
+                    }, {});
 
                     // Send response (supports delay)
                     setTimeout(function() {
@@ -164,7 +162,7 @@ function Server(host, port, key, cert)
                         res.writeHead(status, headersToSend);
 
                         // Send content
-                        if (req.method != "HEAD") {
+                        if (req.method !== "HEAD") {
                             res.write(content, encoding);
                         }
 
@@ -197,7 +195,7 @@ function Server(host, port, key, cert)
     this.start = function(callback)
     {
         // Create app stack
-        var connectApp = connect()
+        const connectApp = connect()
             .use(_saveRequest)
             .use(_multipart)
             .use(bodyParser.json())
@@ -216,10 +214,10 @@ function Server(host, port, key, cert)
 
         server.on("connection", function (connection) {
             connection.on("close", function () {
-                connections = _(connections).without(connection);
+                connections.delete(connection);
             });
 
-            connections.push(connection);
+            connections.add(connection);
         });
 
         server.on("listening", function () {
@@ -231,13 +229,13 @@ function Server(host, port, key, cert)
     };
 
 
-    this.stop = function (callback) {
+    this.stop = (callback) => {
         if (!server) {
             return callback();
         }
 
         // Close connections
-        _(connections).forEach(function (connection) {
+        connections.forEach((connection) => {
             connection.end();
         });
 
@@ -247,15 +245,15 @@ function Server(host, port, key, cert)
             handlers = [];
 
             // Wait until all connections are closed
-            if (connections.length === 0) {
+            if (connections.size === 0) {
                 requests = [];
 
                 callback();
             } else {
-                _(connections).forEach(function (connection) {
+                connections.forEach((connection) => {
                     connection.on("close", function() {
-                        connections = _(connections).without(connection);
-                        if (connections.length === 0) {
+                        connections.delete(connection);
+                        if (connections.size === 0) {
                             requests = [];
 
                             callback();
@@ -268,13 +266,23 @@ function Server(host, port, key, cert)
         server.close();
     };
 
-    this.on = function(handler) {
+    this.on = (handler) => {
         // Add default reply
-        handler.reply         = _({}).extend({ "status": 200, "body": "" }, handler.reply);
-        handler.reply.headers = _({}).extend({ "content-type": "application/json" }, handler.reply.headers);
+        handler.reply = {
+            status: 200,
+            body: "",
+            ...handler.reply,
+        };
+        handler.reply.headers = {
+            "content-type": "application/json",
+            ...handler.reply.headers,
+        };
 
         // Add default method
-        handler = _({}).extend({ "method": "GET" }, handler);
+        handler = {
+            method: "GET",
+            ...handler,
+        };
 
         handlers.unshift(handler);
         return this;
@@ -283,22 +291,22 @@ function Server(host, port, key, cert)
     /**
      * Clears request handlers and requests received by the HTTP server.
      */
-    this.reset = function() {
-        self.resetHandlers();
-        self.resetRequests();
+    this.reset = () => {
+        this.resetHandlers();
+        this.resetRequests();
     }
 
     /**
      * Clears all request handlers that were previously set using `on()` method.
      */
-    this.resetHandlers = function() {
+    this.resetHandlers = () => {
         handlers = [];
     };
 
     /**
      * Clears all requests received by the HTTP server.
      */
-    this.resetRequests = function() {
+    this.resetRequests = () => {
         requests = [];
     }
 
@@ -311,9 +319,9 @@ function Server(host, port, key, cert)
      * @param  {Object} filter
      * @return {Array}
      */
-    this.requests = function(filter) {
-        return _(requests).filter(function(req) {
-            var reqParts = url.parse(req.url, true);
+    this.requests = (filter) => {
+        return requests.filter((req) => {
+            const reqParts = url.parse(req.url, true);
             const methodMatch = !filter || !filter.method || filter.method === req.method;
             const pathMatch = !filter || !filter.path || filter.path === reqParts.pathname;
 
@@ -326,16 +334,16 @@ function Server(host, port, key, cert)
      *
      * @return {Array}
      */
-    this.connections = function() {
-        return connections;
+    this.connections = () => {
+        return Array.from(connections.values());
     };
 
     /**
      * Returns the port number if set or null otherwise
      *
-     * @return {Number|null}
+     * @return {number|null}
      */
-    this.getPort = function() {
+    this.getPort = () => {
         return address ? address.port : null;
     }
 }
@@ -354,15 +362,15 @@ function ServerVoid() {
 }
 
 /**
- * @param {Object} httpConfig
- * @param {Object} httpsConfig
+ * @param {{host: string; port: number;}} [httpConfig]
+ * @param {{host: string; port: number; key: string; cert: string}} [httpsConfig]
  */
 function ServerMock(httpConfig, httpsConfig)
 {
-    var httpServerMock  = httpConfig ?  new Server(httpConfig.host, httpConfig.port) : new ServerVoid();
-    var httpsServerMock = httpsConfig ? new Server(httpsConfig.host, httpsConfig.port, httpsConfig.key, httpsConfig.cert) : new ServerVoid();
+    const httpServerMock  = httpConfig ? new Server(httpConfig.host, httpConfig.port) : new ServerVoid();
+    const httpsServerMock = httpsConfig ? new Server(httpsConfig.host, httpsConfig.port, httpsConfig.key, httpsConfig.cert) : new ServerVoid();
 
-    this.start = function(callback) {
+    this.start = (callback) => {
         httpServerMock.start(function() {
             httpsServerMock.start(function() {
                 callback();
@@ -370,46 +378,46 @@ function ServerMock(httpConfig, httpsConfig)
         });
     };
 
-    this.stop = function(callback) {
+    this.stop = (callback) => {
         httpServerMock.stop(function() {
             httpsServerMock.stop(callback);
         });
     };
 
-    this.on = function(handler) {
+    this.on = (handler) => {
         httpServerMock.on(handler);
         httpsServerMock.on(handler);
 
         return this;
     };
 
-    this.requests = function(filter) {
+    this.requests = (filter) => {
         return httpServerMock.requests(filter).concat(httpsServerMock.requests(filter));
     }
 
-    this.connections = function() {
+    this.connections = () => {
         return httpServerMock.connections().concat(httpsServerMock.connections());
     }
 
-    this.getHttpPort = function() {
+    this.getHttpPort = () => {
         return httpServerMock.getPort();
     }
 
-    this.getHttpsPort = function() {
+    this.getHttpsPort = () => {
         return httpsServerMock.getPort();
     }
 
-    this.reset = function() {
+    this.reset = () => {
         httpServerMock.reset();
         httpsServerMock.reset();
     }
 
-    this.resetHandlers = function() {
+    this.resetHandlers = () => {
         httpServerMock.resetHandlers();
         httpsServerMock.resetHandlers();
     }
 
-    this.resetRequests = function() {
+    this.resetRequests = () => {
         httpServerMock.resetRequests();
         httpsServerMock.resetRequests();
     }
